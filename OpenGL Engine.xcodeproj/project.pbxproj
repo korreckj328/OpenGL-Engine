@@ -20,7 +20,7 @@
 		69D1FCFCA67E8B701B5F8569 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
-			dstPath = usr/share/man/man1;
+			dstPath = "";
 			dstSubfolderSpec = 7;
 			files = (
 				E6ED268D235E91A000D5F241 /* Resources in CopyFiles */,

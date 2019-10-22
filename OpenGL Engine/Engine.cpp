@@ -8,7 +8,7 @@
 Engine::Engine() {
     InitGLFW();
     myShaders = Shaders();
-    myShaders.Init("usr/share/man/man1/Resources/shaders/core.vs", "usr/share/man/man1/Resources/shaders/core.fs");
+    myShaders.Init("Resources/shaders/core.vs", "Resources/shaders/core.fs");
 
 
 }
