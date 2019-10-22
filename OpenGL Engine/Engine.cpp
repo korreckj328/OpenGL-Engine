@@ -8,7 +8,7 @@
 Engine::Engine() {
     InitGLFW();
     myShaders = Shaders();
-    myShaders.Init("Resources/shaders/core.vs", "Resources/shaders/core.fs");
+    myShaders.Init("Resources/shaders/vertexShader.glsl", "Resources/shaders/fragmentShader.glsl");
 
 
 }
