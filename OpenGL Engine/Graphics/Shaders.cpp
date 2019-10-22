@@ -5,13 +5,13 @@
 #include <iostream>
 #include "Shaders.h"
 
-void Shaders::Init() {
+void Shaders::Init(const GLchar *vertexPath, const GLchar *fragmentPath) {
     bool result;
-    result = InitializeVertexShader();
+    result = InitializeVertexShader(vertexPath);
     if (!result) {
         exit(-1);
     }
-    result = InitializeFragmentShader();
+    result = InitializeFragmentShader(fragmentPath);
     if (!result) {
         exit(-1);
     }
@@ -26,7 +26,24 @@ Shaders::~Shaders() {
 
 }
 
-bool Shaders::InitializeVertexShader() {
+bool Shaders::InitializeVertexShader(const GLchar *vertexPath) {
+    std::string vertexShaderCode;
+    std::ifstream vertexShaderFile;
+
+    vertexShaderFile.exceptions(std::ifstream::badbit);
+
+    try {
+        vertexShaderFile.open(vertexPath);
+        std::stringstream vertexShaderStream;
+        vertexShaderStream << vertexShaderFile.rdbuf();
+        vertexShaderFile.close();
+        vertexShaderCode = vertexShaderStream.str();
+    } catch (std::ifstream::failure) {
+        std::cout << "Vertex Shader File is not readable" << std::endl;
+    }
+
+    const GLchar *vertexShaderSource = vertexShaderCode.c_str();
+
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
     glCompileShader(vertexShader);
@@ -40,7 +57,25 @@ bool Shaders::InitializeVertexShader() {
     return true;
 }
 
-bool Shaders::InitializeFragmentShader() {
+bool Shaders::InitializeFragmentShader(const GLchar *fragmentPath) {
+
+    std::string fragmentShaderCode;
+    std::ifstream fragmentShaderFile;
+
+    fragmentShaderFile.exceptions(std::ifstream::badbit);
+
+    try {
+        fragmentShaderFile.open(fragmentPath);
+        std::stringstream fragmentShaderStream;
+        fragmentShaderStream << fragmentShaderFile.rdbuf();
+        fragmentShaderFile.close();
+        fragmentShaderCode = fragmentShaderStream.str();
+    } catch (std::ifstream::failure) {
+        std::cout << "Fragment Shader File is not readable" << std::endl;
+    }
+
+    const GLchar *fragmentShaderSource = fragmentShaderCode.c_str();
+
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
     glCompileShader(fragmentShader);

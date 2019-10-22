@@ -32,6 +32,7 @@ private:
     int screenWidth;
     int screenHeight;
     const float RED[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+    const float WHITE[4] = {1.0f, 1.0f, 1.0f, 1.0f};
     GLuint vbo;
     GLuint vao;
 };

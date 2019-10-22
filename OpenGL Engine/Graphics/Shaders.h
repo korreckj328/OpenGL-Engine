@@ -7,37 +7,25 @@
 #define OPENGL_ENGINE_SHADERS_H
 
 #include <GL/glew.h>
+#include <string.h>
+#include <fstream>
+#include <sstream>
 
 class Shaders {
 public:
     Shaders();
     ~Shaders();
     GLuint GetShaderProgram();
-    void Init();
+    void Init(const GLchar *vertexPath, const GLchar *fragmentPath);
 private:
-    const GLchar *vertexShaderSource = "#version 330 core\n"
-                                       "layout ( location = 0 ) in vec3 position;\n"
-                                       "void main()\n"
-                                       "{\n"
-                                       "gl_Position= vec4( position.x, position.y, position.z, 1.0 );\n"
-                                       "}";
-
-    const GLchar *fragmentShaderSource = "#version 330 core\n"
-                                         "out vec4 color;\n"
-                                         "void main() \n"
-                                         "{\n"
-                                         "color = vec4(1.0f, 1.0f, 1.0f, 1.0f);\n"
-                                         "}";
-
     GLuint vertexShader;
     GLint success;
     GLchar infoLog[512];
-    bool InitializeVertexShader();
+    bool InitializeVertexShader(const GLchar *vertexPath);
     GLuint fragmentShader;
-    bool InitializeFragmentShader();
+    bool InitializeFragmentShader(const GLchar *vertexPath);
     GLuint shaderProgram;
     bool LinkShaders();
-
 
 };
 
