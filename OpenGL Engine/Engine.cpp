@@ -65,9 +65,12 @@ bool Engine::InitGLFW() {
 void Engine::Run() {
 
     GLfloat vertices[] = {
-                -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, //bottom left
-                0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,//bottom right
-                0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f,//top
+                -0.5f, -0.5f, 0.0f, 0.75f, 0.0f, 0.75f, //bottom left
+                0.5f, -0.5f, 0.0f, 0.5f, 0.0f, 0.5f,//bottom right
+                0.0f, 0.5f, 0.0f, 0.2f, 0.0f, 1.0f,//top
+                0.0f, 0.5f, 0.0f, 0.2f, 0.0f, 1.0f,
+                -0.5f, 0.5f, 0.0f, 0.5f, 0.0f, 0.5f,
+                -0.25, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
     };
 
     glGenVertexArrays(1, &vao);
@@ -99,7 +102,7 @@ void Engine::Run() {
 
         glUseProgram(myShaders.GetShaderProgram());
         glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
 
         // Swap the screen buffers
