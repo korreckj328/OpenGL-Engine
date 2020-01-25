@@ -5,8 +5,13 @@
 
 #ifndef OPENGL_ENGINE_ENGINE_H
 #define OPENGL_ENGINE_ENGINE_H
-
+#ifdef __APPLE__
 #include "Shaders.h"
+#else
+
+#include "Graphics/Shaders.h"
+
+#endif
 #include <iostream>
 
 // GLEW
