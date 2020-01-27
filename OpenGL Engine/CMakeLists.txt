@@ -13,6 +13,7 @@ find_package(GLEW REQUIRED)
 pkg_search_module(GLFW REQUIRED glfw3)
 include_directories(${GLFW_INCLUDE_DIRS})
 find_package(SOIL REQUIRED)
+find_package(GLM REQUIRED)
 
 
 add_executable(OpenGL_Engine main.cpp Engine.cpp Engine.h Graphics/Shaders.cpp Graphics/Shaders.h)
@@ -20,6 +21,7 @@ target_link_libraries(OpenGL_Engine ${OPENGL_LIBRARIES})
 target_link_libraries(OpenGL_Engine ${GLFW_LIBRARIES})
 target_link_libraries(OpenGL_Engine ${GLEW_LIBRARIES})
 target_link_libraries(OpenGL_Engine ${SOIL_LIBRARIES})
+target_link_libraries(OpenGL_Engine ${GLM_LIBRARIES})
 
 set (source "${CMAKE_SOURCE_DIR}/Resources")
 set (destination "${CMAKE_CURRENT_BINARY_DIR}/Resources")
