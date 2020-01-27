@@ -21,7 +21,8 @@
 // GLFW
 #include <GLFW/glfw3.h>
 
-
+// SOIL
+#include <SOIL/SOIL.h>
 
 class Engine {
 public:
@@ -40,6 +41,11 @@ private:
     const float WHITE[4] = {1.0f, 1.0f, 1.0f, 1.0f};
     GLuint vbo;
     GLuint vao;
+    GLuint ebo;
+    GLuint texture;
+    int textureWidth;
+    int textureHeight;
+    unsigned char *image;
 };
 
 

@@ -2,7 +2,7 @@
 // Created by Jeremiah Korreck on 10/20/19.
 // Copyright (c) 2019 Korrecksoftware. All rights reserved.
 //
-
+#include <SOIL/SOIL.h>
 #include "Engine.h"
 
 Engine::Engine() {
@@ -19,6 +19,7 @@ Engine::~Engine() {
     window = nullptr;
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &ebo);
 }
 
 bool Engine::InitGLFW() {
@@ -59,35 +60,70 @@ bool Engine::InitGLFW() {
     // Define the viewport dimensions
     glViewport( 0, 0, screenWidth, screenHeight );
 
+    glEnable( GL_BLEND );
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
     return true;
 }
 
 void Engine::Run() {
 
     GLfloat vertices[] = {
-                -0.5f, -0.5f, 0.0f, 0.75f, 0.0f, 0.75f, //bottom left
-                0.5f, -0.5f, 0.0f, 0.5f, 0.0f, 0.5f,//bottom right
-                0.0f, 0.5f, 0.0f, 0.2f, 0.0f, 1.0f,//top
-                0.0f, 0.5f, 0.0f, 0.2f, 0.0f, 1.0f,
-                -0.5f, 0.5f, 0.0f, 0.5f, 0.0f, 0.5f,
-                -0.25, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+                // position             //color                 //texture coordinates
+                0.5f, 0.5f, 0.0f,       1.0f, 0.0f, 0.0f,       1.0f, 1.0f,     //top right
+                0.5f, -0.5f,0.0f,       1.0f, 0.0f, 0.0f,       1.0f, 0.0f,     //bottom right
+                -0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,       0.0f, 0.0f,     //bottom left
+                -0.5f, 0.5f, 0.0f,      1.0f, 0.0f, 0.0f,       0.0f, 1.0f      //top left
+    };
+
+    GLuint indices[] = {
+            0, 1, 3,
+            3, 1, 2
     };
 
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
+    glGenBuffers(1, &ebo);
+
     glBindVertexArray(vao);
+
     glBindBuffer( GL_ARRAY_BUFFER, vbo);
     glBufferData( GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *) 0);
-    glEnableVertexAttribArray(0);
+    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *) (3 * sizeof(GLfloat)));
+    //position
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid *) 0);
+    glEnableVertexAttribArray(0);
+    //color
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid *) (3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
+    //texture
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid *) (6 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(2);
+
 
 //    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glBindVertexArray(0);
+
+    // texture loading
+    glGenTextures(1,&texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    std::string image1Location = "Resources/textures/image2.png";
+    image = SOIL_load_image(image1Location.c_str(), &textureWidth, &textureHeight, 0, SOIL_LOAD_RGBA);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    SOIL_free_image_data(image);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     // Game loop
     while ( !glfwWindowShouldClose( window ) )
@@ -101,8 +137,14 @@ void Engine::Run() {
         glClear( GL_COLOR_BUFFER_BIT );
 
         glUseProgram(myShaders.GetShaderProgram());
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glUniform1i(glGetUniformLocation(myShaders.GetShaderProgram(), "my texture"), 0);
+
+
         glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
 
         // Swap the screen buffers
