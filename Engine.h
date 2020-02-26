@@ -27,6 +27,7 @@
 // GLM
 #include <glm/vec3.hpp>
 
+
 class Engine {
 public:
     Engine();
@@ -44,11 +45,12 @@ private:
     const float WHITE[4] = {1.0f, 1.0f, 1.0f, 1.0f};
     GLuint vbo;
     GLuint vao;
-    GLuint ebo;
+    // GLuint ebo;
     GLuint texture;
     int textureWidth;
     int textureHeight;
     unsigned char *image;
+    
 };
 
 

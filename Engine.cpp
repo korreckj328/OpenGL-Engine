@@ -23,7 +23,7 @@ Engine::~Engine() {
     window = nullptr;
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &vbo);
-    glDeleteBuffers(1, &ebo);
+    // glDeleteBuffers(1, &ebo);
 }
 
 bool Engine::InitGLFW() {
@@ -64,6 +64,9 @@ bool Engine::InitGLFW() {
     // Define the viewport dimensions
     glViewport( 0, 0, screenWidth, screenHeight );
 
+    // enabling depth
+    glEnable( GL_DEPTH_TEST );
+
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
@@ -72,39 +75,117 @@ bool Engine::InitGLFW() {
 
 void Engine::Run() {
 
+    
+    /*
+    // Set up vertex data (and buffer(s)) and attribute pointers
+    // use with Orthographic Projection
     GLfloat vertices[] = {
-                // position             //color                 //texture coordinates
-                0.5f, 0.5f, 0.0f,       1.0f, 0.0f, 0.0f,       1.0f, 1.0f,     //top right
-                0.5f, -0.5f,0.0f,       1.0f, 0.0f, 0.0f,       1.0f, 0.0f,     //bottom right
-                -0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,       0.0f, 0.0f,     //bottom left
-                -0.5f, 0.5f, 0.0f,      1.0f, 0.0f, 0.0f,       0.0f, 1.0f      //top left
+        -0.5f * 500, -0.5f * 500, -0.5f * 500,  0.0f, 0.0f,
+        0.5f * 500, -0.5f * 500, -0.5f * 500,  1.0f, 0.0f,
+        0.5f * 500,  0.5f * 500, -0.5f * 500,  1.0f, 1.0f,
+        0.5f * 500,  0.5f * 500, -0.5f * 500,  1.0f, 1.0f,
+        -0.5f * 500,  0.5f * 500, -0.5f * 500,  0.0f, 1.0f,
+        -0.5f * 500, -0.5f * 500, -0.5f * 500,  0.0f, 0.0f,
+        
+        -0.5f * 500, -0.5f * 500,  0.5f * 500,  0.0f, 0.0f,
+        0.5f * 500, -0.5f * 500,  0.5f * 500,  1.0f, 0.0f,
+        0.5f * 500,  0.5f * 500,  0.5f * 500,  1.0f, 1.0f,
+        0.5f * 500,  0.5f * 500,  0.5f * 500,  1.0f, 1.0f,
+        -0.5f * 500,  0.5f * 500,  0.5f * 500,  0.0f, 1.0f,
+        -0.5f * 500, -0.5f * 500,  0.5f * 500,  0.0f, 0.0f,
+        
+        -0.5f * 500,  0.5f * 500,  0.5f * 500,  1.0f, 0.0f,
+        -0.5f * 500,  0.5f * 500, -0.5f * 500,  1.0f, 1.0f,
+        -0.5f * 500, -0.5f * 500, -0.5f * 500,  0.0f, 1.0f,
+        -0.5f * 500, -0.5f * 500, -0.5f * 500,  0.0f, 1.0f,
+        -0.5f * 500, -0.5f * 500,  0.5f * 500,  0.0f, 0.0f,
+        -0.5f * 500,  0.5f * 500,  0.5f * 500,  1.0f, 0.0f,
+        
+        0.5f * 500,  0.5f * 500,  0.5f * 500,  1.0f, 0.0f,
+        0.5f * 500,  0.5f * 500, -0.5f * 500,  1.0f, 1.0f,
+        0.5f * 500, -0.5f * 500, -0.5f * 500,  0.0f, 1.0f,
+        0.5f * 500, -0.5f * 500, -0.5f * 500,  0.0f, 1.0f,
+        0.5f * 500, -0.5f * 500,  0.5f * 500,  0.0f, 0.0f,
+        0.5f * 500,  0.5f * 500,  0.5f * 500,  1.0f, 0.0f,
+        
+        -0.5f * 500, -0.5f * 500, -0.5f * 500,  0.0f, 1.0f,
+        0.5f * 500, -0.5f * 500, -0.5f * 500,  1.0f, 1.0f,
+        0.5f * 500, -0.5f * 500,  0.5f * 500,  1.0f, 0.0f,
+        0.5f * 500, -0.5f * 500,  0.5f * 500,  1.0f, 0.0f,
+        -0.5f * 500, -0.5f * 500,  0.5f * 500,  0.0f, 0.0f,
+        -0.5f * 500, -0.5f * 500, -0.5f * 500,  0.0f, 1.0f,
+        
+        -0.5f * 500,  0.5f * 500, -0.5f * 500,  0.0f, 1.0f,
+        0.5f * 500,  0.5f * 500, -0.5f * 500,  1.0f, 1.0f,
+        0.5f * 500,  0.5f * 500,  0.5f * 500,  1.0f, 0.0f,
+        0.5f * 500,  0.5f * 500,  0.5f * 500,  1.0f, 0.0f,
+        -0.5f * 500,  0.5f * 500,  0.5f * 500,  0.0f, 0.0f,
+        -0.5f * 500,  0.5f * 500, -0.5f * 500,  0.0f, 1.0f
     };
+     */
 
-    GLuint indices[] = {
-            0, 1, 3,
-            3, 1, 2
+    // use with Perspective Projection
+    GLfloat vertices[] = {
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+        
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
 
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
-    glGenBuffers(1, &ebo);
+    // glGenBuffers(1, &ebo);
 
     glBindVertexArray(vao);
 
     glBindBuffer( GL_ARRAY_BUFFER, vbo);
     glBufferData( GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    // glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ebo);
+    // glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     //position
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid *) 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *) 0);
     glEnableVertexAttribArray(0);
-    //color
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid *) (3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
     //texture
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid *) (6 * sizeof(GLfloat)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *) (3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(2);
 
 
@@ -116,13 +197,18 @@ void Engine::Run() {
     glGenTextures(1,&texture);
     glBindTexture(GL_TEXTURE_2D, texture);
 
+
+    glm::mat4 projection(1);
+    
+    projection = glm::perspective(45.0f, (GLfloat)screenWidth / screenHeight, 0.1f, 100.0f);
+
     glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    std::string image1Location = "Resources/textures/image2.png";
+    std::string image1Location = "Resources/textures/image1.jpg";
     image = SOIL_load_image(image1Location.c_str(), &textureWidth, &textureHeight, 0, SOIL_LOAD_RGBA);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
     glGenerateMipmap(GL_TEXTURE_2D);
@@ -138,24 +224,32 @@ void Engine::Run() {
         // Render
         // Clear the colorbuffer
         glClearColor( WHITE[0], WHITE[1], WHITE[2], WHITE[3] );
-        glClear( GL_COLOR_BUFFER_BIT );
-
-        glUseProgram(myShaders.GetShaderProgram());
-
-        glm::mat4 transform(1);
-        transform = glm::translate(transform, glm::vec3(-0.25f, -0.4f, 0.0f));
-        transform = glm::rotate(transform, (GLfloat)glfwGetTime() * -5.0f,glm::vec3(0.0f, 0.0f, 1.0f));
-
-        GLint tranformLocation = glGetUniformLocation(myShaders.GetShaderProgram(), "transform");
-        glUniformMatrix4fv(tranformLocation, 1, GL_FALSE, glm::value_ptr(transform));
+        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
-        glUniform1i(glGetUniformLocation(myShaders.GetShaderProgram(), "my texture"), 0);
+        glUniform1i(glGetUniformLocation(myShaders.GetShaderProgram(), "my_texture"), 0);
 
+        glUseProgram(myShaders.GetShaderProgram());
+
+        // these need to be in the while loop
+        glm::mat4 model(1);
+        glm::mat4 view(1);
+
+
+        model = glm::rotate(model, (GLfloat)glfwGetTime() * 1.0f, glm::vec3(0.5f, 1.0f, 0.0f) );
+        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+        GLint modelLocation = glGetUniformLocation(myShaders.GetShaderProgram(), "model");
+        GLint viewLocation = glGetUniformLocation(myShaders.GetShaderProgram(), "view");
+        GLint projectionLocation = glGetUniformLocation(myShaders.GetShaderProgram(), "projection");
+        
+        glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, glm::value_ptr(projection));
 
         glBindVertexArray(vao);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
 
         // Swap the screen buffers

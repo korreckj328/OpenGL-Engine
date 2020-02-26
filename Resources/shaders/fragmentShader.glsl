@@ -2,7 +2,6 @@
 
 // These need to match the names of the vertex shader outs exactly
 
-in vec3 ourColor;
 in vec2 ourTextureCoordinates;
 
 out vec4 color;
