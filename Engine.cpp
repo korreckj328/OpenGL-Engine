@@ -5,6 +5,10 @@
 #include <SOIL/SOIL.h>
 #include "Engine.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 Engine::Engine() {
     InitGLFW();
     myShaders = Shaders();
@@ -137,6 +141,13 @@ void Engine::Run() {
         glClear( GL_COLOR_BUFFER_BIT );
 
         glUseProgram(myShaders.GetShaderProgram());
+
+        glm::mat4 transform(1);
+        transform = glm::translate(transform, glm::vec3(-0.25f, -0.4f, 0.0f));
+        transform = glm::rotate(transform, (GLfloat)glfwGetTime() * -5.0f,glm::vec3(0.0f, 0.0f, 1.0f));
+
+        GLint tranformLocation = glGetUniformLocation(myShaders.GetShaderProgram(), "transform");
+        glUniformMatrix4fv(tranformLocation, 1, GL_FALSE, glm::value_ptr(transform));
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);

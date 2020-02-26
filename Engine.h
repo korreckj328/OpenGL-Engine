@@ -25,7 +25,6 @@
 #include <SOIL/SOIL.h>
 
 // GLM
-// note this specific include is just to test the cmake code at this time
 #include <glm/vec3.hpp>
 
 class Engine {
