@@ -16,7 +16,12 @@ find_package(SOIL REQUIRED)
 find_package(GLM REQUIRED)
 
 
-add_executable(OpenGL_Engine main.cpp Engine.cpp Engine.h Graphics/Shaders.cpp Graphics/Shaders.h)
+add_executable(OpenGL_Engine main.cpp Engine.cpp 
+                                Engine.h 
+                                Graphics/Shaders.cpp 
+                                Graphics/Shaders.h
+                                Camera.hpp
+                                Camera.cpp)
 target_link_libraries(OpenGL_Engine ${OPENGL_LIBRARIES})
 target_link_libraries(OpenGL_Engine ${GLFW_LIBRARIES})
 target_link_libraries(OpenGL_Engine ${GLEW_LIBRARIES})

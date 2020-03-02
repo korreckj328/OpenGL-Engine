@@ -4,16 +4,31 @@
 //
 #include <SOIL/SOIL.h>
 #include "Engine.h"
-
+#include "Camera.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+Engine *GlobalEnginePointer = nullptr;
+
+void TrampolineKeyCallback(GLFWwindow *a, int b, int c, int d, int e) {
+    if (GlobalEnginePointer != nullptr) {
+        GlobalEnginePointer->glfwKeyCallback(a,b,c,d,e);
+    }
+}
+
 
 Engine::Engine() {
     InitGLFW();
     myShaders = Shaders();
     myShaders.Init("Resources/shaders/vertexShader.glsl", "Resources/shaders/fragmentShader.glsl");
-
+    camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+    lastX = WIDTH / 2.0f;
+    lastY = HEIGHT / 2.0f;
+    deltaTime = 0.0f;
+    lastFrame = 0.0f;
+    currentFrame = 0.0f;
+    
 
 }
 
@@ -51,6 +66,12 @@ bool Engine::InitGLFW() {
     }
 
     glfwMakeContextCurrent( window );
+    
+    glfwSetKeyCallback(window, TrampolineKeyCallback);
+    glfwSetCursorPosCallback(window, MouseCallback);
+    glfwSetScrollCallback(window, ScrollCallback);
+
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
     glewExperimental = GL_TRUE;
@@ -75,56 +96,6 @@ bool Engine::InitGLFW() {
 
 void Engine::Run() {
 
-    
-    /*
-    // Set up vertex data (and buffer(s)) and attribute pointers
-    // use with Orthographic Projection
-    GLfloat vertices[] = {
-        -0.5f * 500, -0.5f * 500, -0.5f * 500,  0.0f, 0.0f,
-        0.5f * 500, -0.5f * 500, -0.5f * 500,  1.0f, 0.0f,
-        0.5f * 500,  0.5f * 500, -0.5f * 500,  1.0f, 1.0f,
-        0.5f * 500,  0.5f * 500, -0.5f * 500,  1.0f, 1.0f,
-        -0.5f * 500,  0.5f * 500, -0.5f * 500,  0.0f, 1.0f,
-        -0.5f * 500, -0.5f * 500, -0.5f * 500,  0.0f, 0.0f,
-        
-        -0.5f * 500, -0.5f * 500,  0.5f * 500,  0.0f, 0.0f,
-        0.5f * 500, -0.5f * 500,  0.5f * 500,  1.0f, 0.0f,
-        0.5f * 500,  0.5f * 500,  0.5f * 500,  1.0f, 1.0f,
-        0.5f * 500,  0.5f * 500,  0.5f * 500,  1.0f, 1.0f,
-        -0.5f * 500,  0.5f * 500,  0.5f * 500,  0.0f, 1.0f,
-        -0.5f * 500, -0.5f * 500,  0.5f * 500,  0.0f, 0.0f,
-        
-        -0.5f * 500,  0.5f * 500,  0.5f * 500,  1.0f, 0.0f,
-        -0.5f * 500,  0.5f * 500, -0.5f * 500,  1.0f, 1.0f,
-        -0.5f * 500, -0.5f * 500, -0.5f * 500,  0.0f, 1.0f,
-        -0.5f * 500, -0.5f * 500, -0.5f * 500,  0.0f, 1.0f,
-        -0.5f * 500, -0.5f * 500,  0.5f * 500,  0.0f, 0.0f,
-        -0.5f * 500,  0.5f * 500,  0.5f * 500,  1.0f, 0.0f,
-        
-        0.5f * 500,  0.5f * 500,  0.5f * 500,  1.0f, 0.0f,
-        0.5f * 500,  0.5f * 500, -0.5f * 500,  1.0f, 1.0f,
-        0.5f * 500, -0.5f * 500, -0.5f * 500,  0.0f, 1.0f,
-        0.5f * 500, -0.5f * 500, -0.5f * 500,  0.0f, 1.0f,
-        0.5f * 500, -0.5f * 500,  0.5f * 500,  0.0f, 0.0f,
-        0.5f * 500,  0.5f * 500,  0.5f * 500,  1.0f, 0.0f,
-        
-        -0.5f * 500, -0.5f * 500, -0.5f * 500,  0.0f, 1.0f,
-        0.5f * 500, -0.5f * 500, -0.5f * 500,  1.0f, 1.0f,
-        0.5f * 500, -0.5f * 500,  0.5f * 500,  1.0f, 0.0f,
-        0.5f * 500, -0.5f * 500,  0.5f * 500,  1.0f, 0.0f,
-        -0.5f * 500, -0.5f * 500,  0.5f * 500,  0.0f, 0.0f,
-        -0.5f * 500, -0.5f * 500, -0.5f * 500,  0.0f, 1.0f,
-        
-        -0.5f * 500,  0.5f * 500, -0.5f * 500,  0.0f, 1.0f,
-        0.5f * 500,  0.5f * 500, -0.5f * 500,  1.0f, 1.0f,
-        0.5f * 500,  0.5f * 500,  0.5f * 500,  1.0f, 0.0f,
-        0.5f * 500,  0.5f * 500,  0.5f * 500,  1.0f, 0.0f,
-        -0.5f * 500,  0.5f * 500,  0.5f * 500,  0.0f, 0.0f,
-        -0.5f * 500,  0.5f * 500, -0.5f * 500,  0.0f, 1.0f
-    };
-     */
-
-    // use with Perspective Projection
     GLfloat vertices[] = {
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
@@ -169,6 +140,19 @@ void Engine::Run() {
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
 
+    glm::vec3 cubePositions[] =  {
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(2.0f, 5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.4f),
+        glm::vec3(2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f, 3.0f, -7.5f),
+        glm::vec3(1.3f, -2.0f, -2.5f),
+        glm::vec3(1.5f, 2.0f, -2.5f),
+        glm::vec3(1.5f, 0.2f, -1.5f),
+        glm::vec3(-1.3f, 1.0f, -1.5f),
+    };
+
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
     // glGenBuffers(1, &ebo);
@@ -198,9 +182,9 @@ void Engine::Run() {
     glBindTexture(GL_TEXTURE_2D, texture);
 
 
-    glm::mat4 projection(1);
+    // glm::mat4 projection(1);
     
-    projection = glm::perspective(45.0f, (GLfloat)screenWidth / screenHeight, 0.1f, 100.0f);
+    // projection = glm::perspective(45.0f, (GLfloat)screenWidth / screenHeight, 0.1f, 100.0f);
 
     glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -218,9 +202,13 @@ void Engine::Run() {
     // Game loop
     while ( !glfwWindowShouldClose( window ) )
     {
+        currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         // Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
         glfwPollEvents( );
-
+        DoMovement();
         // Render
         // Clear the colorbuffer
         glClearColor( WHITE[0], WHITE[1], WHITE[2], WHITE[3] );
@@ -233,28 +221,84 @@ void Engine::Run() {
         glUseProgram(myShaders.GetShaderProgram());
 
         // these need to be in the while loop
+        glm::mat4 projection(1);
         glm::mat4 model(1);
         glm::mat4 view(1);
 
-
-        model = glm::rotate(model, (GLfloat)glfwGetTime() * 1.0f, glm::vec3(0.5f, 1.0f, 0.0f) );
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+        projection = glm::perspective(camera.GetZoom(), (GLfloat)screenWidth / screenHeight, 0.1f, 100.0f);
+        // model = glm::rotate(model, (GLfloat)glfwGetTime() * 1.0f, glm::vec3(0.5f, 1.0f, 0.0f) );
+        view = camera.GetViewMatrix();
 
         GLint modelLocation = glGetUniformLocation(myShaders.GetShaderProgram(), "model");
         GLint viewLocation = glGetUniformLocation(myShaders.GetShaderProgram(), "view");
         GLint projectionLocation = glGetUniformLocation(myShaders.GetShaderProgram(), "projection");
         
-        glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
+        
         glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, glm::value_ptr(projection));
 
         glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        for (GLuint i = 0; i < (sizeof(cubePositions) / sizeof(cubePositions[0])); i++) {
+            model = glm::translate(model, cubePositions[i]);
+            GLfloat angle = 20.0f * i;
+            model = glm::rotate(model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
+            glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+        // glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
 
         // Swap the screen buffers
         glfwSwapBuffers( window );
     }
+}
+
+
+void Engine::DoMovement(){
+    if (keys[GLFW_KEY_W] || keys[GLFW_KEY_UP]) {
+        camera.ProcessKeyboard(FORWARD, deltaTime);
+    }
+    if (keys[GLFW_KEY_S] || keys[GLFW_KEY_DOWN]) {
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
+    }
+    if (keys[GLFW_KEY_A] || keys[GLFW_KEY_LEFT]) {
+        camera.ProcessKeyboard(LEFT, deltaTime);
+    }
+    if (keys[GLFW_KEY_D] || keys[GLFW_KEY_DOWN]) {
+        camera.ProcessKeyboard(RIGHT, deltaTime);
+    }
+} 
+
+void Engine::gflwKeyCallback(GLFWwindow *window, int key, int scancode, int action, int mode) {
+    if(GLFW_KEY_ESCAPE == key && action == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window, GL_TRUE);
+    }
+    if (key >= 0 && key < 1024) {
+        if (GLFW_PRESS == action) {
+            keys[key] = true;
+        } else if (GLFW_RELEASE == action) {
+            keys[key] = false;
+        }
+    }
+}
+
+void Engine::gflwScrollCallback(GLFWwindow *window, double xOffset, double yOffset) {
+    camera.ProcessMouseScroll(yOffset);
+}
+
+void Engine::gflwMouseCallback(GLFWwindow *window, double xPos, double yPos) {
+    if (firstMouse) {
+        lastX = xPos;
+        lastY = yPos;
+        firstMouse = false;
+    }
+    GLfloat xOffset = xPos - lastX;
+    GLfloat yOffset = lastY - yPos;
+
+    lastX = xPos;
+    lastY = yPos;
+    camera.ProcessMouseMovement(xOffset, yOffset);
 }
 
 

@@ -27,12 +27,17 @@
 // GLM
 #include <glm/vec3.hpp>
 
+#include "Camera.hpp"
+
 
 class Engine {
 public:
     Engine();
     ~Engine();
     void Run();
+    void glfwKeyCallback(GLFWwindow *window, int key, int scancode, int action, int mode);
+    void glfwScrollCallback(GLFWwindow *window, double xOffset, double yOffset);
+    void glfwMouseCallback(GLFWwindow *window, double xPos, double yPos);
 private:
     Shaders myShaders;
     const GLint WIDTH = 800;
@@ -50,8 +55,22 @@ private:
     int textureWidth;
     int textureHeight;
     unsigned char *image;
+    void DoMovement();
+
+    Camera camera;
+    GLfloat lastX;
+    GLfloat lastY;
+    GLfloat deltaTime;
+    GLfloat lastFrame;
+    GLfloat currentFrame;
+
+    bool keys[1024];
+    bool firstMouse = true;
+
     
 };
+
+
 
 
 #endif //OPENGL_ENGINE_ENGINE_H
