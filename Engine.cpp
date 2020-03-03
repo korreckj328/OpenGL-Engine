@@ -179,9 +179,6 @@ void Engine::Run() {
     glBindBuffer( GL_ARRAY_BUFFER, vbo);
     glBufferData( GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    // glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ebo);
-    // glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
     //position
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *) 0);
     glEnableVertexAttribArray(0);
@@ -197,11 +194,6 @@ void Engine::Run() {
     // texture loading
     glGenTextures(1,&texture);
     glBindTexture(GL_TEXTURE_2D, texture);
-
-
-    // glm::mat4 projection(1);
-    
-    // projection = glm::perspective(45.0f, (GLfloat)screenWidth / screenHeight, 0.1f, 100.0f);
 
     glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -243,7 +235,6 @@ void Engine::Run() {
         glm::mat4 view(1);
 
         projection = glm::perspective(camera.GetZoom(), (GLfloat)screenWidth / screenHeight, 0.1f, 100.0f);
-        // model = glm::rotate(model, (GLfloat)glfwGetTime() * 1.0f, glm::vec3(0.5f, 1.0f, 0.0f) );
         view = camera.GetViewMatrix();
 
         GLint modelLocation = glGetUniformLocation(myShaders.GetShaderProgram(), "model");
@@ -274,19 +265,15 @@ void Engine::Run() {
 
 void Engine::DoMovement(){
     if (keys[GLFW_KEY_W] || keys[GLFW_KEY_UP]) {
-        std::cout << "Up pressed" << std::endl;
         camera.ProcessKeyboard(FORWARD, deltaTime);
     }
     if (keys[GLFW_KEY_S] || keys[GLFW_KEY_DOWN]) {
-        std::cout << "Down pressed" << std::endl;
         camera.ProcessKeyboard(BACKWARD, deltaTime);
     }
     if (keys[GLFW_KEY_A] || keys[GLFW_KEY_LEFT]) {
-        std::cout << "Left pressed" << std::endl;
         camera.ProcessKeyboard(LEFT, deltaTime);
     }
     if (keys[GLFW_KEY_D] || keys[GLFW_KEY_DOWN]) {
-        std::cout << "Right pressed" << std::endl;
         camera.ProcessKeyboard(RIGHT, deltaTime);
     }
 } 

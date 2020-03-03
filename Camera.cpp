@@ -38,12 +38,16 @@ void Camera::ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime) {
     switch (direction) {
         case FORWARD:
             this->position += this->front * velocity;
+            break;
         case BACKWARD:
             this->position -= this->front * velocity;
+            break;
         case LEFT:
             this->position -= this->right * velocity;
+            break;
         case RIGHT:
             this->position += this->right * velocity;
+            break;
     }
 }
 
