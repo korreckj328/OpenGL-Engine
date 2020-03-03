@@ -273,7 +273,7 @@ void Engine::DoMovement(){
     if (keys[GLFW_KEY_A] || keys[GLFW_KEY_LEFT]) {
         camera.ProcessKeyboard(LEFT, deltaTime);
     }
-    if (keys[GLFW_KEY_D] || keys[GLFW_KEY_DOWN]) {
+    if (keys[GLFW_KEY_D] || keys[GLFW_KEY_RIGHT]) {
         camera.ProcessKeyboard(RIGHT, deltaTime);
     }
 } 
