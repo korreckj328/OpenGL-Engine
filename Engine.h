@@ -64,7 +64,8 @@ private:
     GLfloat lastFrame;
     GLfloat currentFrame;
 
-    bool keys[1024];
+    const int KEYS_SIZE = 1024;
+    bool *keys = nullptr;
     bool firstMouse = true;
 
     

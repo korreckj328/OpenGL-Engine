@@ -17,8 +17,24 @@ void TrampolineKeyCallback(GLFWwindow *a, int b, int c, int d, int e) {
     }
 }
 
+void TrampolineScrollCallback(GLFWwindow *window, double xOffset, double yOffset) {
+    if (GlobalEnginePointer != nullptr) {
+        GlobalEnginePointer->glfwScrollCallback(window, xOffset, yOffset);
+    }
+}
+
+void TrampolineMouseCallback(GLFWwindow *window, double xPos, double yPos) {
+    if (GlobalEnginePointer != nullptr) {
+        GlobalEnginePointer->glfwMouseCallback(window,xPos,yPos);
+    }
+}
+
 
 Engine::Engine() {
+    keys = new bool[KEYS_SIZE];
+    for (int i = 0; i < KEYS_SIZE; i++) {
+        keys[i] = false;
+    }
     InitGLFW();
     myShaders = Shaders();
     myShaders.Init("Resources/shaders/vertexShader.glsl", "Resources/shaders/fragmentShader.glsl");
@@ -28,7 +44,7 @@ Engine::Engine() {
     deltaTime = 0.0f;
     lastFrame = 0.0f;
     currentFrame = 0.0f;
-    
+    GlobalEnginePointer = this;
 
 }
 
@@ -39,6 +55,7 @@ Engine::~Engine() {
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &vbo);
     // glDeleteBuffers(1, &ebo);
+    keys = nullptr;
 }
 
 bool Engine::InitGLFW() {
@@ -68,8 +85,8 @@ bool Engine::InitGLFW() {
     glfwMakeContextCurrent( window );
     
     glfwSetKeyCallback(window, TrampolineKeyCallback);
-    glfwSetCursorPosCallback(window, MouseCallback);
-    glfwSetScrollCallback(window, ScrollCallback);
+    glfwSetCursorPosCallback(window, TrampolineMouseCallback);
+    glfwSetScrollCallback(window, TrampolineScrollCallback);
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -257,20 +274,24 @@ void Engine::Run() {
 
 void Engine::DoMovement(){
     if (keys[GLFW_KEY_W] || keys[GLFW_KEY_UP]) {
+        std::cout << "Up pressed" << std::endl;
         camera.ProcessKeyboard(FORWARD, deltaTime);
     }
     if (keys[GLFW_KEY_S] || keys[GLFW_KEY_DOWN]) {
+        std::cout << "Down pressed" << std::endl;
         camera.ProcessKeyboard(BACKWARD, deltaTime);
     }
     if (keys[GLFW_KEY_A] || keys[GLFW_KEY_LEFT]) {
+        std::cout << "Left pressed" << std::endl;
         camera.ProcessKeyboard(LEFT, deltaTime);
     }
     if (keys[GLFW_KEY_D] || keys[GLFW_KEY_DOWN]) {
+        std::cout << "Right pressed" << std::endl;
         camera.ProcessKeyboard(RIGHT, deltaTime);
     }
 } 
 
-void Engine::gflwKeyCallback(GLFWwindow *window, int key, int scancode, int action, int mode) {
+void Engine::glfwKeyCallback(GLFWwindow *window, int key, int scancode, int action, int mode) {
     if(GLFW_KEY_ESCAPE == key && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
@@ -281,13 +302,14 @@ void Engine::gflwKeyCallback(GLFWwindow *window, int key, int scancode, int acti
             keys[key] = false;
         }
     }
+    this->DoMovement();
 }
 
-void Engine::gflwScrollCallback(GLFWwindow *window, double xOffset, double yOffset) {
+void Engine::glfwScrollCallback(GLFWwindow *window, double xOffset, double yOffset) {
     camera.ProcessMouseScroll(yOffset);
 }
 
-void Engine::gflwMouseCallback(GLFWwindow *window, double xPos, double yPos) {
+void Engine::glfwMouseCallback(GLFWwindow *window, double xPos, double yPos) {
     if (firstMouse) {
         lastX = xPos;
         lastY = yPos;
