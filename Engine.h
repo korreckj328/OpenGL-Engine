@@ -36,10 +36,15 @@ public:
     ~Engine();
     void Run();
     void glfwKeyCallback(GLFWwindow *window, int key, int scancode, int action, int mode);
-    void glfwScrollCallback(GLFWwindow *window, double xOffset, double yOffset);
+
+    // Commenting this out but leaving it intact for potential later use
+    // void glfwScrollCallback(GLFWwindow *window, double xOffset, double yOffset);
+    
     void glfwMouseCallback(GLFWwindow *window, double xPos, double yPos);
+
 private:
-    Shaders myShaders;
+    Shaders lightingShaders;
+    Shaders lampShaders;
     const GLint WIDTH = 800;
     const GLint HEIGHT = 600;
     bool InitGLFW();
@@ -49,12 +54,9 @@ private:
     const float RED[4] = {1.0f, 0.0f, 0.0f, 1.0f};
     const float WHITE[4] = {1.0f, 1.0f, 1.0f, 1.0f};
     GLuint vbo;
-    GLuint vao;
+    GLuint boxVao;
+    GLuint lightVao;
     // GLuint ebo;
-    GLuint texture;
-    int textureWidth;
-    int textureHeight;
-    unsigned char *image;
     void DoMovement();
 
     Camera camera;
@@ -63,6 +65,7 @@ private:
     GLfloat deltaTime;
     GLfloat lastFrame;
     GLfloat currentFrame;
+    glm::vec3 lightPos;
 
     const int KEYS_SIZE = 1024;
     bool *keys = nullptr;

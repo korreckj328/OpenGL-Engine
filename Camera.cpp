@@ -69,15 +69,11 @@ void Camera::ProcessMouseMovement(GLfloat xOffset, GLfloat yOffset, GLboolean co
 }
 
 void Camera::ProcessMouseScroll(GLfloat yOffset) {
-    if (this->zoom >= 1.0f && this->zoom <= 45.0f) {
-        this->zoom -= yOffset;
-    }
-    if (this->zoom < 1.0f) {
-        this->zoom = 1.0f;
-    }
-    if (this->zoom > 45.0f) {
-        this->zoom = 45.0f;
-    }
+    // This space is for any wanted activity with the scroll wheel
+    // currently I have no feature that I'd actually want to implement 
+    // here.  But I left the callbacks intact from the tutorial on setting them up
+    // so that I would have them for reference if I decide to implement something
+    // for this
 }
 
 GLfloat Camera::GetZoom() {

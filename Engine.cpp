@@ -16,12 +16,12 @@ void TrampolineKeyCallback(GLFWwindow *a, int b, int c, int d, int e) {
         GlobalEnginePointer->glfwKeyCallback(a,b,c,d,e);
     }
 }
-
-void TrampolineScrollCallback(GLFWwindow *window, double xOffset, double yOffset) {
-    if (GlobalEnginePointer != nullptr) {
-        GlobalEnginePointer->glfwScrollCallback(window, xOffset, yOffset);
-    }
-}
+// Commenting this out but leaving it intact for potential later use
+// void TrampolineScrollCallback(GLFWwindow *window, double xOffset, double yOffset) {
+//     if (GlobalEnginePointer != nullptr) {
+//         GlobalEnginePointer->glfwScrollCallback(window, xOffset, yOffset);
+//     }
+// }
 
 void TrampolineMouseCallback(GLFWwindow *window, double xPos, double yPos) {
     if (GlobalEnginePointer != nullptr) {
@@ -36,8 +36,13 @@ Engine::Engine() {
         keys[i] = false;
     }
     InitGLFW();
-    myShaders = Shaders();
-    myShaders.Init("Resources/shaders/vertexShader.glsl", "Resources/shaders/fragmentShader.glsl");
+    
+    lightingShaders = Shaders();
+    lightingShaders.Init("Resources/shaders/lightingVertexShader.glsl", "Resources/shaders/lightingFragmentShader.glsl");
+
+    lampShaders = Shaders();
+    lampShaders.Init("Resources/shaders/lampVertexShader.glsl", "Resources/shaders/lampFragmentShader.glsl");
+
     camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
     lastX = WIDTH / 2.0f;
     lastY = HEIGHT / 2.0f;
@@ -45,6 +50,7 @@ Engine::Engine() {
     lastFrame = 0.0f;
     currentFrame = 0.0f;
     GlobalEnginePointer = this;
+    lightPos = glm::vec3(1.2f, 1.0f, 2.0f );
 
 }
 
@@ -52,7 +58,7 @@ Engine::~Engine() {
     // Terminate GLFW, clearing any resources allocated by GLFW.
     glfwTerminate( );
     window = nullptr;
-    glDeleteVertexArrays(1, &vao);
+    glDeleteVertexArrays(1, &boxVao);
     glDeleteBuffers(1, &vbo);
     // glDeleteBuffers(1, &ebo);
     keys = nullptr;
@@ -86,7 +92,8 @@ bool Engine::InitGLFW() {
     
     glfwSetKeyCallback(window, TrampolineKeyCallback);
     glfwSetCursorPosCallback(window, TrampolineMouseCallback);
-    glfwSetScrollCallback(window, TrampolineScrollCallback);
+    // Commenting this out but leaving it intact for potential later use
+    // glfwSetScrollCallback(window, TrampolineScrollCallback);
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -114,100 +121,88 @@ bool Engine::InitGLFW() {
 void Engine::Run() {
 
     GLfloat vertices[] = {
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        0.5f,  0.5f, -0.5f,
+        0.5f,  0.5f, -0.5f,
+        -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
         
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,
+        0.5f, -0.5f,  0.5f,
+        0.5f,  0.5f,  0.5f,
+        0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f,
         
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
         
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,
+        0.5f,  0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f,  0.5f,
+        0.5f,  0.5f,  0.5f,
         
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f,  0.5f,
+        0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f, -0.5f,
         
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+        -0.5f,  0.5f, -0.5f,
+        0.5f,  0.5f, -0.5f,
+        0.5f,  0.5f,  0.5f,
+        0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f, -0.5f,
     };
 
-    glm::vec3 cubePositions[] =  {
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(2.0f, 5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.4f),
-        glm::vec3(2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f, 3.0f, -7.5f),
-        glm::vec3(1.3f, -2.0f, -2.5f),
-        glm::vec3(1.5f, 2.0f, -2.5f),
-        glm::vec3(1.5f, 0.2f, -1.5f),
-        glm::vec3(-1.3f, 1.0f, -1.5f),
-    };
-
-    glGenVertexArrays(1, &vao);
+    // This is the box that will be in the "scene"
+    glGenVertexArrays(1, &boxVao);
     glGenBuffers(1, &vbo);
     // glGenBuffers(1, &ebo);
 
-    glBindVertexArray(vao);
+    glBindVertexArray(boxVao);
 
     glBindBuffer( GL_ARRAY_BUFFER, vbo);
     glBufferData( GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     //position
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *) 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *) 0);
     glEnableVertexAttribArray(0);
-    //texture
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *) (3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(2);
+    
+    
+    // this is the light in the scene
+    glGenVertexArrays(1, &lightVao);
+    glGenBuffers(1, &vbo);
+    // glGenBuffers(1, &ebo);
 
+    glBindVertexArray(lightVao);
+
+    glBindBuffer( GL_ARRAY_BUFFER, vbo);
+    glBufferData( GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    //position
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *) 0);
+    glEnableVertexAttribArray(0);
+    
 
 //    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glBindVertexArray(0);
 
-    // texture loading
-    glGenTextures(1,&texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
 
-    glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    std::string image1Location = "Resources/textures/image1.jpg";
-    image = SOIL_load_image(image1Location.c_str(), &textureWidth, &textureHeight, 0, SOIL_LOAD_RGBA);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    SOIL_free_image_data(image);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
+    glm::mat4 projection(1);
+    projection = glm::perspective(camera.GetZoom(), (GLfloat)screenWidth / screenHeight, 0.1f, 100.0f);
+    
+    
     // Game loop
     while ( !glfwWindowShouldClose( window ) )
     {
@@ -220,43 +215,15 @@ void Engine::Run() {
         DoMovement();
         // Render
         // Clear the colorbuffer
-        glClearColor( WHITE[0], WHITE[1], WHITE[2], WHITE[3] );
+        glClearColor( 0.1f, 0.1f, 0.1f, 1.0f );
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glUniform1i(glGetUniformLocation(myShaders.GetShaderProgram(), "my_texture"), 0);
+        // glUseProgram(myShaders.GetShaderProgram());
+        lightingShaders.Use()
+        GLint objectColorLoc = glGetUniformLocation(lightingShaders.GetShaderProgram, "objectColor");
+        GLint lightColorLoc = glGetUniformLocation(lightingShaders.GetShaderProgram, "lightColor");
 
-        glUseProgram(myShaders.GetShaderProgram());
-
-        // these need to be in the while loop
-        glm::mat4 projection(1);
-        glm::mat4 model(1);
-        glm::mat4 view(1);
-
-        projection = glm::perspective(camera.GetZoom(), (GLfloat)screenWidth / screenHeight, 0.1f, 100.0f);
-        view = camera.GetViewMatrix();
-
-        GLint modelLocation = glGetUniformLocation(myShaders.GetShaderProgram(), "model");
-        GLint viewLocation = glGetUniformLocation(myShaders.GetShaderProgram(), "view");
-        GLint projectionLocation = glGetUniformLocation(myShaders.GetShaderProgram(), "projection");
         
-        
-        glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, glm::value_ptr(projection));
-
-        glBindVertexArray(vao);
-
-        for (GLuint i = 0; i < (sizeof(cubePositions) / sizeof(cubePositions[0])); i++) {
-            model = glm::translate(model, cubePositions[i]);
-            GLfloat angle = 20.0f * i;
-            model = glm::rotate(model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
-            glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
-        // glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
         // Swap the screen buffers
         glfwSwapBuffers( window );
     }
@@ -292,9 +259,10 @@ void Engine::glfwKeyCallback(GLFWwindow *window, int key, int scancode, int acti
     this->DoMovement();
 }
 
-void Engine::glfwScrollCallback(GLFWwindow *window, double xOffset, double yOffset) {
-    camera.ProcessMouseScroll(yOffset);
-}
+// Commenting this out but leaving it intact for potential later use
+// void Engine::glfwScrollCallback(GLFWwindow *window, double xOffset, double yOffset) {
+//     camera.ProcessMouseScroll(yOffset);
+// }
 
 void Engine::glfwMouseCallback(GLFWwindow *window, double xPos, double yPos) {
     if (firstMouse) {
